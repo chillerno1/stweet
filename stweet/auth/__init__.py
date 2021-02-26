@@ -1,2 +1,2 @@
-from .auth_token_provider import AuthTokenProvider
-from .simple_auth_token_provider import SimpleAuthTokenProvider
+from .auth_token_provider import GuestTokenProvider
+from .simple_auth_token_provider import SimpleGuestTokenProvider

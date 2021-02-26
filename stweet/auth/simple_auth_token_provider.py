@@ -5,7 +5,7 @@ from json import JSONDecodeError
 
 from retrying import retry
 
-from .auth_token_provider import AuthTokenProvider
+from .auth_token_provider import GuestTokenProvider
 from ..exceptions import RefreshTokenException
 from ..exceptions.too_many_requests_exception import TooManyRequestsException
 from ..http_request import WebClient
@@ -15,7 +15,7 @@ _TIMEOUT = 20
 _URL = 'https://api.twitter.com/1.1/guest/activate.json'
 
 
-class SimpleAuthTokenProvider(AuthTokenProvider):
+class SimpleGuestTokenProvider(GuestTokenProvider):
     """Class to manage Twitter token api."""
 
     wait_fixed_on_too_many_requests_exception: int
@@ -26,7 +26,7 @@ class SimpleAuthTokenProvider(AuthTokenProvider):
             wait_fixed_on_too_many_requests_exception: int = 60 * 1000,
             stop_max_delay_on_too_many_requests_exception: int = 40 * 60 * 1000
     ):
-        """Constructor of SimpleAuthTokenProvider, can override default retries time."""
+        """Constructor of SimpleGuestTokenProvider, can override default retries time."""
         self.wait_fixed_on_too_many_requests_exception = wait_fixed_on_too_many_requests_exception
         self.stop_max_delay_on_too_many_requests_exception = stop_max_delay_on_too_many_requests_exception
 

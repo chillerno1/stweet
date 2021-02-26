@@ -1,6 +1,6 @@
 """Class with request details."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict
 
 from .http_method import HttpMethod
@@ -12,6 +12,6 @@ class RequestDetails:
 
     http_method: HttpMethod
     url: str
-    headers: Dict[str, str]
-    params: Dict[str, str]
-    timeout: int
+    headers: Dict[str, str] = field(default_factory=dict)
+    params: Dict[str, str] = field(default_factory=dict)
+    timeout: int = 10

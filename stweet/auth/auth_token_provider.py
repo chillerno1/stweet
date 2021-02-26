@@ -4,7 +4,7 @@ from abc import abstractmethod
 from ..http_request.web_client import WebClient
 
 
-class AuthTokenProvider:
+class GuestTokenProvider:
     """Abstract class for get guest auth token."""
 
     @abstractmethod

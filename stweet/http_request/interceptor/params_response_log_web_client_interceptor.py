@@ -14,9 +14,9 @@ class ParamsResponseLogWebClientInterceptor(WebClient.WebClientInterceptor):
     _counter: int
     _lock: threading.Lock
 
-    def __init__(self):
+    def __init__(self, init_counter: int = 0):
         """Constructor of ParamsResponseLogWebClientInterceptor."""
-        self._value = 0
+        self._value = init_counter
         self._lock = threading.Lock()
 
     def increment(self) -> int:

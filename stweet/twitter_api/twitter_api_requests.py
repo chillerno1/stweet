@@ -20,11 +20,9 @@ class TwitterApiRequests:
     def get_guest_token_request_details(self):
         """Method return request details to get guest token."""
         return RequestDetails(
-            HttpMethod.POST,
-            'https://api.twitter.com/1.1/guest/activate.json',
-            dict(),
-            dict(),
-            self.timeout
+            http_method=HttpMethod.POST,
+            url='https://api.twitter.com/1.1/guest/activate.json',
+            timeout=self.timeout
         )
 
     def get_search_tweet_request_details(
@@ -41,7 +39,6 @@ class TwitterApiRequests:
         return RequestDetails(
             HttpMethod.GET,
             url='https://api.twitter.com/2/search/adaptive.json',
-            headers=dict(),
             params=dict([
                 ('include_can_media_tag', '1'),
                 ('include_ext_alt_text', 'true'),
@@ -69,7 +66,6 @@ class TwitterApiRequests:
         return RequestDetails(
             http_method=HttpMethod.GET,
             url='https://cdn.syndication.twimg.com/tweet',
-            headers=dict(),
             params=dict({'id': tweet_id}),
             timeout=self.timeout
         )
@@ -80,7 +76,6 @@ class TwitterApiRequests:
         return RequestDetails(
             http_method=HttpMethod.GET,
             url=f'https://api.twitter.com/graphql/{_graphql_token}/UserByScreenName',
-            headers=dict(),
             params=dict({
                 'variables': json.dumps({'screen_name': username, 'withHighlightedLabel': True})
             }),

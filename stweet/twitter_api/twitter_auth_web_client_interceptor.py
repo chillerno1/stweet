@@ -2,7 +2,7 @@
 from threading import Lock
 from typing import List, Optional
 
-from stweet.auth import SimpleAuthTokenProvider, AuthTokenProvider
+from stweet.auth import SimpleGuestTokenProvider, GuestTokenProvider
 from stweet.exceptions.too_many_requests_exception import TooManyRequestsException
 from stweet.http_request import RequestsWebClient, WebClient, RequestDetails, RequestResponse
 
@@ -17,29 +17,29 @@ class TwitterAuthWebClientInterceptor(WebClient.WebClientInterceptor):
     Interceptor allows to simple manage auth requests.
     """
 
-    _current_token: Optional[str]
-    _auth_token_provider: AuthTokenProvider
-    _quest_token_lock: Lock
+    _current_guest_token: Optional[str]
+    _guest_token_provider: GuestTokenProvider
+    _guest_token_lock: Lock
 
     def __init__(
             self,
-            init_auth_token: Optional[str] = None,
-            auth_token_provider: Optional[AuthTokenProvider] = None
+            init_guest_token: Optional[str] = None,
+            guest_token_provider: Optional[GuestTokenProvider] = None
     ):
         """Constructor of AuthWebClientInterceptor."""
-        self._current_token = init_auth_token
-        self._auth_token_provider = auth_token_provider \
-            if auth_token_provider is not None \
-            else SimpleAuthTokenProvider()
-        self._quest_token_lock = Lock()
+        self._current_guest_token = init_guest_token
+        self._guest_token_provider = guest_token_provider \
+            if guest_token_provider is not None \
+            else SimpleGuestTokenProvider()
+        self._guest_token_lock = Lock()
 
     def _add_auth_token(self, request_details: RequestDetails):
         request_details.headers['Authorization'] = _AUTH_TOKEN
 
     def _add_guest_token(self, request_details: RequestDetails, web_client: WebClient):
-        if self._current_token is None:
+        if self._current_guest_token is None:
             self._call_for_new_auth_request(web_client)
-        request_details.headers['x-guest-token'] = self._current_token
+        request_details.headers['x-guest-token'] = self._current_guest_token
 
     def _is_auth_token_to_add(self, request_details: RequestDetails) -> bool:
         return 'http://api.twitter.com' in request_details.url \
@@ -50,10 +50,10 @@ class TwitterAuthWebClientInterceptor(WebClient.WebClientInterceptor):
         return self._is_auth_token_to_add(request_details) and not is_guest_request
 
     def _call_for_new_auth_request(self, web_client: WebClient):
-        old_token = self._current_token
-        with self._quest_token_lock:
-            if old_token == self._current_token:
-                self._current_token = self._auth_token_provider.get_new_token(web_client)
+        old_token = self._current_guest_token
+        with self._guest_token_lock:
+            if old_token == self._current_guest_token:
+                self._current_guest_token = self._guest_token_provider.get_new_token(web_client)
 
     def intercept(
             self,
@@ -73,8 +73,8 @@ class TwitterAuthWebClientInterceptor(WebClient.WebClientInterceptor):
         response: Optional[RequestResponse] = None
         tries_counter = 0
 
-        while tries_counter < _MAX_TRIES and (response is None or response.is_429()):
-            if need_guest_token and response is not None:
+        while tries_counter < _MAX_TRIES and (response is None or not response.is_success()):
+            if need_guest_token and response is not None and response.is_429():
                 self._call_for_new_auth_request(web_client)
                 self._add_guest_token(requests_details, web_client)
             response = self.get_response(requests_details, next_interceptors, web_client)
